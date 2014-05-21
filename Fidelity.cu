@@ -87,6 +87,9 @@ if(option=="randU")
 	
 if(option=="klimov")
 	state=itppextmath::TensorProduct(itppextmath::TensorProduct(itppextmath::TensorPow(qustate,3),itppextmath::sigma(1)*qustate),itppextmath::TensorPow(qustate,qubits.getValue()-4));
+	
+if(option=="klimov2")
+		state=itppextmath::TensorProduct(itppextmath::TensorProduct(itppextmath::TensorPow(qustate,2),itppextmath::TensorPow(itppextmath::sigma(1)*qustate,2)),itppextmath::TensorPow(qustate,qubits.getValue()-4));
 
 
 //cout<< qustate ;
@@ -123,6 +126,8 @@ itppcuda::apply_floquet(staterev, Jrev, bpert);
 //cout << staterev;
 
 std::cout<< itppextmath::sum_positive_derivatives(list)<< endl;
+
+//std::cout<<state<<endl;
 
 
 }
