@@ -34,7 +34,7 @@ TCLAP::ValueArg<double> phi("","phi", "azimultal angle",false, 1.0,"double",cmd)
 TCLAP::ValueArg<double> deltabx("","deltabx", "perturbation",false, 0.1,"double",cmd);
 TCLAP::ValueArg<int> steps("","steps","steps",false, 100,"int",cmd);
 TCLAP::ValueArg<double> Jpert("","Jpert","Perturbation on Ising",false, 0.0,"double",cmd);
-TCLAP::ValueArg<int> dev("","dev", "Gpu to be used, 0 for k20, 1 for c20",false, 1,"int",cmd);
+TCLAP::ValueArg<int> dev("","dev", "Gpu to be used, 0 for c20, 1 para la jodida",false, 0,"int",cmd);
 
 
 int main(int argc, char* argv[])
