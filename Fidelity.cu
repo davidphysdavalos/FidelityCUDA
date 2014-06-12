@@ -23,6 +23,7 @@
 
 TCLAP::CmdLine cmd("Command description message", ' ', "0.1");
 TCLAP::ValueArg<string> optionArg("o","option", "Option" ,false,"normalito", "string",cmd);
+TCLAP::ValueArg<string> optionArg2("","option2", "Option2" ,false,"fidelity", "string",cmd);
 TCLAP::ValueArg<unsigned int> seed("s","seed", "Random seed [0 for urandom]",false, 243243,"unsigned int",cmd);
 TCLAP::ValueArg<int> qubits("q","qubits", "number of qubits",false, 4,"int",cmd);
 TCLAP::ValueArg<double> J("J","ising_coupling", "Ising interaction in the z-direction",false, 1.0,"double",cmd);
@@ -59,6 +60,7 @@ b(2)=bz.getValue();
 bpert=b;
 bpert(0)=b(0)+deltabx.getValue();
 string option=optionArg.getValue();
+string option2=optionArg2.getValue();
 
 itpp::cvec state, staterev, qustate;
 
@@ -101,6 +103,8 @@ staterev=state;
 
 double Jrev=J.getValue()+Jpert.getValue();
 
+if(option2=="fidelity"){
+
 itpp::vec list(steps.getValue());
 
 for(int i=0;i<steps.getValue();i++){
@@ -109,7 +113,7 @@ list(i)=pow( abs( dot( conj(staterev),state)),2);
 
 //cout<< pow( abs( dot( conj(staterev),state)),2) <<endl;
 
-cout << list(i) <<endl;
+std::cout << list(i) <<endl;
 // cout<< i<< " " << list(i) <<endl;
 
 list(i)=sqrt(list(i));
@@ -129,8 +133,65 @@ itppcuda::apply_floquet(staterev, Jrev, bpert);
 //cout << staterev;
 
 std::cout<< itppextmath::sum_positive_derivatives(list)<< endl;
+}
 
-//std::cout<<state<<endl;
+if(option2=="correlacion"){
+	
+itpp::cvec list(steps.getValue());
+
+itpp::cvec init=state;
+
+for(int i=0;i<steps.getValue();i++){
+
+list(i)=dot(conj(init),state);
+
+std::cout << real(list(i)) << " " << imag(list(i)) <<endl;
+
+//cout << list <<endl;
+
+itppcuda::apply_floquet(state, J.getValue(), b);
+}
+}
+
+if(option2=="fidelityandipr"){
+
+itpp::vec listfidel(steps.getValue());
+
+itpp::cvec listcorr(steps.getValue());
+
+itpp::cvec init=state;
+
+for(int i=0;i<steps.getValue();i++){
+
+listfidel(i)=pow( abs( dot( conj(staterev),state)),2);
+
+listcorr(i)=pow(abs(dot(conj(init),state)),2);
+
+//cout<< pow( abs( dot( conj(staterev),state)),2) <<endl;
+
+std::cout << listfidel(i) <<endl;
+// cout<< i<< " " << list(i) <<endl;
+
+listfidel(i)=sqrt(listfidel(i));
+
+itppcuda::apply_floquet(state, J.getValue(), b);
+
+itppcuda::apply_floquet(staterev, Jrev, bpert);
+
+//cout<<abs(dot(conj(staterev),state))<<endl;
+
+//fidelity<<pow(abs(dot(conj(staterev),state)),2)<<endl;
+
+}
+ 
+//fidelity.close();
+
+//cout << staterev;
+
+cout<< itppextmath::sum_positive_derivatives(listfidel)<< endl;
+
+cout<< real(mean(listcorr))<< endl;
+}
 
 
 }
