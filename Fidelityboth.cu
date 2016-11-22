@@ -199,9 +199,41 @@ apply_inhomogeneous_kick(staterev, bpertrev, binhomrev);
 
 cout<< itppextmath::sum_positive_derivatives(list)<< endl;
 }
-//cout<<state<<endl;
+if(option2=="fidelityandipr"){
 
+itpp::vec listfidel(steps.getValue());
 
-//cout<<binhom<<" "<<binhomrev<<endl;
+itpp::cvec listcorr(steps.getValue());
+
+itpp::cvec init=state;
+
+for(int i=0;i<steps.getValue();i++){
+
+listfidel(i)=pow( abs( dot( conj(staterev),state)),2);
+
+listcorr(i)=pow(abs(dot(conj(init),state)),2);
+
+std::cout << listfidel(i) <<endl;
+
+listfidel(i)=sqrt(listfidel(i));
+
+apply_ising_chain_inhom(state, J.getValue()+Jpert.getValue(), J.getValue()+Jinhompert.getValue()+Jpert.getValue());
+
+apply_inhomogeneous_kick(state, bpert, binhom);
+
+apply_ising_chain_inhom(staterev, J.getValue()-Jpert.getValue(), J.getValue()-Jinhompert.getValue()-Jpert.getValue());
+
+apply_inhomogeneous_kick(staterev, bpertrev, binhomrev);
+
+}
+ 
+//fidelity.close();
+
+//cout << staterev;
+
+cout<< itppextmath::sum_positive_derivatives(listfidel)<< endl;
+
+cout<< real(mean(listcorr))<< endl;
+}
 
 }
