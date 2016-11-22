@@ -46,18 +46,17 @@ int main(int argc, char* argv[])
 
 cmd.parse( argc, argv );
 cout.precision(12);
-
-
+cudaSetDevice(dev.getValue());
 
 // {{{ Set seed for random
 unsigned int semilla=seed.getValue();
 if (semilla == 0){
   Random semilla_uran; semilla=semilla_uran.strong();
 } 
-RNG_reset(semilla);
+itpp::RNG_reset(semilla);
 // }}}
 
-vec b(3), bpert(3), bpertrev(3), binhom(3), binhomrev(3); 
+itpp::vec b(3), bpert(3), bpertrev(3), binhom(3), binhomrev(3);
 b(0)=bx.getValue(); 
 b(1)=by.getValue();
 b(2)=bz.getValue();
@@ -72,10 +71,9 @@ binhomrev(0)=bpertrev(0)-deltabxinhom.getValue();
 string option=optionArg.getValue();
 string option2=optionArg2.getValue();
 
-cvec state, staterev, qustate;
+itpp::cvec state, staterev, qustate;
 
-//ofstream fidelity;
-//fidelity.open("fidelity.dat");
+qustate=itppextmath::BlochToQubit(theta.getValue(),phi.getValue());
 
 //qustate=RandomState(64);
 
@@ -107,7 +105,7 @@ if(option=="klimov2")
 		state=itppextmath::TensorProduct(itppextmath::TensorProduct(itppextmath::TensorPow(qustate,2),itppextmath::TensorPow(itppextmath::sigma(1)*qustate,2)),itppextmath::TensorPow(qustate,qubits.getValue()-4));
 	
 if(option=="random")
-	state=RMT::RandomState(pow(2,qubits.getValue()));
+	state=itppextmath::RandomState(pow(2,qubits.getValue()));
 
 //cout<< qustate ;
 
@@ -118,7 +116,7 @@ double Jrev=J.getValue()+Jpert.getValue();
 
 if(option2=="fidelity"){
 
-vec list(steps.getValue());
+itpp::vec list(steps.getValue());
 
 for(int i=0;i<steps.getValue();i++){
 
@@ -131,17 +129,13 @@ cout << list(i) <<endl;
 
 list(i)=sqrt(list(i));
 
-apply_ising_inhom(state, J.getValue()+Jpert.getValue(), J.getValue()+Jinhompert.getValue()+Jpert.getValue());
+apply_ising_chain_inhom(state, J.getValue()+Jpert.getValue(), J.getValue()+Jinhompert.getValue()+Jpert.getValue());
 
-apply_magnetic_inhom(state, bpert, binhom);
+apply_inhomogeneous_kick(state, bpert, binhom);
 
-apply_ising_inhom(staterev, J.getValue()-Jpert.getValue(), J.getValue()-Jinhompert.getValue()-Jpert.getValue());
+apply_ising_chain_inhom(staterev, J.getValue()-Jpert.getValue(), J.getValue()-Jinhompert.getValue()-Jpert.getValue());
 
-apply_magnetic_inhom(staterev, bpertrev, binhomrev);
-
-//cout<<abs(dot(conj(staterev),state))<<endl;
-
-//fidelity<<pow(abs(dot(conj(staterev),state)),2)<<endl;
+apply_inhomogeneous_kick(staterev, bpertrev, binhomrev);
 
 }
  
@@ -149,7 +143,7 @@ apply_magnetic_inhom(staterev, bpertrev, binhomrev);
 
 //cout << staterev;
 
-cout<< sum_positive_derivatives(list)<< endl;
+cout<< itppextmath::sum_positive_derivatives(list)<< endl;
 }
 //cout<<state<<endl;
 if(option2=="correlacion"){
