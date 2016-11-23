@@ -236,4 +236,47 @@ cout<< itppextmath::sum_positive_derivatives(listfidel)<< endl;
 cout<< real(mean(listcorr))<< endl;
 }
 
+if(option2=="correlationandipr"){
+
+itpp::cvec listcorr(steps.getValue());
+
+itpp::cvec init=state;
+
+for(int i=0;i<steps.getValue();i++){
+
+listcorr(i)=pow(abs(dot(conj(init),state)),2);
+
+std::cout << listcorr(i) <<endl;
+
+apply_ising_chain_inhom(state, J.getValue()+Jpert.getValue(), J.getValue()+Jinhompert.getValue()+Jpert.getValue());
+
+apply_inhomogeneous_kick(state, bpert, binhom);
+
+}
+
+cout<< real(mean(listcorr))<< endl;
+}
+
+if(option2=="ipr"){
+
+itpp::cvec listcorr(steps.getValue());
+
+itpp::cvec init=state;
+
+for(int i=0;i<steps.getValue();i++){
+
+listcorr(i)=pow(abs(dot(conj(init),state)),2);
+
+//std::cout << listcorr(i) <<endl;
+
+apply_ising_chain_inhom(state, J.getValue()+Jpert.getValue(), J.getValue()+Jinhompert.getValue()+Jpert.getValue());
+
+apply_inhomogeneous_kick(state, bpert, binhom);
+
+}
+
+cout<< real(mean(listcorr))<< endl;
+}
+
+
 }
